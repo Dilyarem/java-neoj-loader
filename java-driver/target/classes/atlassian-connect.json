@@ -1,0 +1,53 @@
+{
+  "key": "${addon.key}",
+  "baseUrl": "${addon.base-url}",
+  "name": "Jira To Neo4j Addon",
+  "authentication": {
+    "type": "jwt"
+  },
+  "lifecycle": {
+    "installed": "/installed",
+    "uninstalled": "/uninstalled"
+  },
+  "scopes": ["READ", "WRITE"],
+  "modules": {
+    "webhooks": [
+      {
+        "event": "jira:issue_created",
+        "url": "/issue_updated"
+      },
+      {
+        "event": "jira:issue_updated",
+        "url": "/issue_updated"
+      },
+      {
+        "event": "jira:issue_deleted",
+        "url": "/issue_deleted"
+      },
+      {
+        "event": "project_created",
+        "url": "/project_updated"
+      },
+      {
+        "event": "project_updated",
+        "url": "/project_updated"
+      },
+      {
+        "event": "project_deleted",
+        "url": "/project_deleted"
+      },
+      {
+        "event": "user_created",
+        "url": "/user_updated"
+      },
+      {
+        "event": "user_updated",
+        "url": "/user_updated"
+      },
+      {
+        "event": "user_deleted",
+        "url": "/user_deleted"
+      }
+    ]
+  }
+}
