@@ -7,6 +7,7 @@ import org.neo4j.driver.exceptions.Neo4jException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,9 +18,9 @@ public class Neo4jLoader {
     private final Driver driver;
     private final Logger logger;
 
-    public Neo4jLoader() {
+    public Neo4jLoader(@Value("${spring.neo4j.uri}") String uri, @Value("${spring.neo4j.authentication.username}") String username, @Value("${spring.neo4j.authentication.password}") String password) {
         this.logger  = LoggerFactory.getLogger(Neo4jLoader.class);
-        this.driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "curse4"), Config.defaultConfig());
+        this.driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password), Config.defaultConfig());
     }
 
 
