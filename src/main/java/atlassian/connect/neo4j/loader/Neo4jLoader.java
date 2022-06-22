@@ -1,5 +1,7 @@
-package atlassian;
+package atlassian.connect.neo4j.loader;
 
+import atlassian.connect.neo4j.graphInfo.NodeUpdInfo;
+import atlassian.connect.neo4j.graphInfo.RelationInfo;
 import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.Neo4jException;
 import org.slf4j.Logger;
@@ -43,15 +45,15 @@ public class Neo4jLoader {
         }
     }
 
-    private void createRelation(Transaction tx, String updNodeLabel, String updNodeIdField, Object updNodeIdValue, RelationInfo relationInfo) {
-        String relationship = String.format("MATCH (p:%s), (u:%s) ", updNodeLabel,
-                relationInfo.getEndNodeLabel());
-        relationship += String.format("where p.%s = $pId AND u.%s= $uId ", updNodeIdField,
+    private void createRelation(Transaction tx, String updNodeLabel, String updNodeIdField, Object updNodeIdValue,
+                                RelationInfo relationInfo) {
+        String relationship = String.format("MERGE (p:%s{%s:$pId})", updNodeLabel, updNodeIdField);
+        relationship += String.format("MERGE (u:%s{%s:$uId})",  relationInfo.getEndNodeLabel(),
                 relationInfo.getEndNodeIdField());
         relationship += String.format("CREATE (p)-[r:%s]->(u)", relationInfo.getRelationName());
         Map<String, Object> r_params = new HashMap<>();
-        r_params.put("pId", updNodeIdValue);
-        r_params.put("uId", relationInfo.getEndNodeId());
+        r_params.put("pId", updNodeIdValue.toString());
+        r_params.put("uId", relationInfo.getEndNodeId().toString());
         logger.info("CREATE / UPDATE relation "+ relationship + " with params " + r_params);
         tx.run(relationship, r_params);
     }

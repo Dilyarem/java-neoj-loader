@@ -1,4 +1,4 @@
-package atlassian;
+package atlassian.connect.neo4j.graphInfo;
 
 public class RelationInfo {
     private final String endNodeLabel;

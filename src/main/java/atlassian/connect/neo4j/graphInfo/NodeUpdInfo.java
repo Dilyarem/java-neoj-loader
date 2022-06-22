@@ -1,4 +1,4 @@
-package atlassian;
+package atlassian.connect.neo4j.graphInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

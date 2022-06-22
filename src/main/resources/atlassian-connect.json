@@ -9,12 +9,12 @@
     "installed": "/installed",
     "uninstalled": "/uninstalled"
   },
-  "scopes": ["READ", "WRITE"],
+  "scopes": ["READ", "WRITE", "ADMIN"],
   "modules": {
     "webhooks": [
       {
         "event": "jira:issue_created",
-        "url": "/issue_updated"
+        "url": "/issue_created"
       },
       {
         "event": "jira:issue_updated",
@@ -26,7 +26,7 @@
       },
       {
         "event": "project_created",
-        "url": "/project_updated"
+        "url": "/project_created"
       },
       {
         "event": "project_updated",
@@ -38,7 +38,7 @@
       },
       {
         "event": "user_created",
-        "url": "/user_updated"
+        "url": "/user_created"
       },
       {
         "event": "user_updated",

@@ -5,6 +5,6 @@ dbms:
     auth_enabled=false:
 addon:
   key: neo4j
-  base-url: https://8dee-84-252-147-229.ngrok.io
+  base-url: https://374f-194-186-207-140.ngrok.io
 
 logging.level.com.atlassian.connect.spring: DEBUG
