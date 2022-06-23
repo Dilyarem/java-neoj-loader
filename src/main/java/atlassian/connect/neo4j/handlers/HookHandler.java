@@ -41,6 +41,17 @@ public class HookHandler {
         neo4jLoader.load(nodeUpdInfos);
     }
 
+    public void handleIssueDeleted(JSONArray jsonArray) {
+        List<NodeUpdInfo> nodeUpdInfos = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject issueInfo = jsonArray.getJSONObject(i);
+            NodeUpdInfo nodeUpdInfo = new NodeUpdInfo("Issue", "id", issueInfo.get("id").toString());
+            nodeUpdInfo.addProperty("deleted", true);
+            nodeUpdInfos.add(nodeUpdInfo);
+        }
+        neo4jLoader.load(nodeUpdInfos);
+    }
+
     private void addRels(JSONObject info, NodeUpdInfo nodeUpdInfo, Map<String, List<List<String>>> rels) {
         for (Map.Entry<String, List<List<String>>> entry : rels.entrySet()) {
             String endNodeLabel = entry.getKey();
@@ -52,7 +63,7 @@ public class HookHandler {
                 for (int j = 0; j < path.size() - 1; ++j) {
                     try {
                     obj = obj.getJSONObject(path.get(j));
-                    } catch (JSONException e) {continue;}
+                    } catch (JSONException e) {}
                 }
 
                 try {
@@ -87,10 +98,6 @@ public class HookHandler {
         }
     }
 
-    public void handleIssueDeleted( JSONObject json) {
-
-    }
-
 
     public void handleProjUpdated(JSONArray jsonArray)  {
         List<NodeUpdInfo> nodeUpdInfos = new ArrayList<>();
@@ -106,14 +113,16 @@ public class HookHandler {
 
 
 
-//        public void handleProjDeleted(String json) {
-//            JSONObject proj_info = (new JSONObject(json)).getJSONObject("project");
-//
-//            NodeUpdInfo nodeUpdInfo = new NodeUpdInfo("Project", "id", proj_info.get("id").toString());
-//            nodeUpdInfo.addProperty("deleted", true);
-//            neo4jLoader.load(List.of(nodeUpdInfo));
-//        }
-//    }
+    public void handleProjDeleted(JSONArray jsonArray)  {
+        List<NodeUpdInfo> nodeUpdInfos = new ArrayList<>();
+        for (int i=0; i < jsonArray.length(); i++) {
+            JSONObject projInfo = jsonArray.getJSONObject(i);
+            NodeUpdInfo nodeUpdInfo = new NodeUpdInfo("Project", "id", projInfo.get("id").toString());
+            nodeUpdInfo.addProperty("deleted", true);
+            nodeUpdInfos.add(nodeUpdInfo);
+        }
+        neo4jLoader.load(nodeUpdInfos);
+    }
 
     public void handleUserUpdated(JSONArray jsonArray)  {
         List<NodeUpdInfo> nodeUpdInfos = new ArrayList<>();
@@ -124,6 +133,17 @@ public class HookHandler {
             addProps(userInfo, nodeUpdInfo, Fields.userFields());
             addRels(userInfo, nodeUpdInfo, Fields.userRelations());
 
+            nodeUpdInfos.add(nodeUpdInfo);
+        }
+        neo4jLoader.load(nodeUpdInfos);
+    }
+
+    public void handleUserDeleted(JSONArray jsonArray)  {
+        List<NodeUpdInfo> nodeUpdInfos = new ArrayList<>();
+        for (int i=0; i < jsonArray.length(); i++) {
+            JSONObject userInfo = jsonArray.getJSONObject(i);
+            NodeUpdInfo nodeUpdInfo = new NodeUpdInfo("User", "accountId", userInfo.get("accountId").toString());
+            nodeUpdInfo.addProperty("deleted", true);
             nodeUpdInfos.add(nodeUpdInfo);
         }
         neo4jLoader.load(nodeUpdInfos);

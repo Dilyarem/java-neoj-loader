@@ -67,4 +67,22 @@ public class Neo4jLoader {
         logger.info("CREATE / UPDATE NODE "+ update + " with params " + props);
         tx.run(update, params);
     }
+
+    public void delete(List<NodeUpdInfo> nodeUpdInfos) {
+        try (Session session = driver.session()) {
+            try(Transaction tx = session.beginTransaction() ) {
+                for (NodeUpdInfo nodeUpdInfo: nodeUpdInfos) {
+                    String updNodeLabel = nodeUpdInfo.getLabel();
+                    String updNodeIdField = nodeUpdInfo.getIdField();
+                    Object updNodeIdValue = nodeUpdInfo.getIdValue();
+
+                    updateProperties(tx, nodeUpdInfo.getProps(), updNodeLabel, updNodeIdField, updNodeIdValue);
+                }
+                tx.commit();
+            }
+
+        } catch (Neo4jException ex) {
+            logger.error(ex.toString());
+        }
+    }
 }

@@ -33,25 +33,29 @@ public class Controller {
     }
 
     @EventListener
-    public void processAddonInstalledEvent(AddonInstalledEvent event) throws MalformedURLException {
+    public void processAddonInstalledEvent(AddonInstalledEvent event) {
         logger.info(event.toString());
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.schedule(() -> {
             String projects = atlassianHostRestClients.authenticatedAsAddon(event.getHost()).getForObject("/rest/api/3/project/search", String.class);
-            logger.info(projects);
-            JSONObject projects_info = new JSONObject(projects);
-            handler.handleProjUpdated(projects_info.getJSONArray("values"));
 
+            if (projects != null) {
+                JSONObject projects_info = new JSONObject(projects);
+                handler.handleProjUpdated(projects_info.getJSONArray("values"));
+            }
             String users = atlassianHostRestClients.authenticatedAsAddon(event.getHost()).getForObject("/rest/api/3/user/search?query=", String.class);
-            logger.info(users);
-            handler.handleUserUpdated(new JSONArray(users));
+            if (users != null) {
+                handler.handleUserUpdated(new JSONArray(users));
+            }
 
             int i = 0;
             while (true) {
                 String issues = atlassianHostRestClients.authenticatedAsAddon(event.getHost()).getForObject(String.format("/rest/api/3/search?maxResults=100&startAt=%d", i), String.class);
+                if (issues == null) {
+                    break;
+                }
                 i += 100;
                 JSONObject issues_info = new JSONObject(issues);
-                logger.info(issues);
                 handler.handleIssueUpdated(issues_info.getJSONArray("issues"));
                 if (issues_info.getJSONArray("issues").length() < 100) {
                     break;
@@ -83,17 +87,19 @@ public class Controller {
 
     @ResponseBody
     @RequestMapping(consumes="application/json", value = "/issue_deleted", method = RequestMethod.POST)
-    public void issue_deleted(@RequestBody JSONObject json){
-        logger.info(json.toString());
-        JSONObject issue_info = (new JSONObject(json)).getJSONObject("issue");
-        handler.handleIssueDeleted(issue_info);
+    public void issue_deleted(@RequestBody String web_hook){
+        logger.info(web_hook);
+        JSONObject issueInfo = (new JSONObject(web_hook)).getJSONObject("issue");
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(issueInfo);
+        handler.handleIssueDeleted(jsonArray);
     }
 
     @ResponseBody
     @RequestMapping(consumes="application/json", value = "/project_created", method = RequestMethod.POST)
-    public void project_created(@RequestBody String json){
-        logger.info(json);
-        JSONObject proj_info = (new JSONObject(json)).getJSONObject("project");
+    public void project_created(@RequestBody String webHook){
+        logger.info(webHook);
+        JSONObject proj_info = (new JSONObject(webHook)).getJSONObject("project");
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(proj_info);
         handler.handleProjUpdated(jsonArray);
@@ -101,9 +107,9 @@ public class Controller {
 
     @ResponseBody
     @RequestMapping(consumes="application/json", value = "/project_updated", method = RequestMethod.POST)
-    public void project_updated(@RequestBody String json){
-        logger.info(json);
-        JSONObject proj_info = (new JSONObject(json)).getJSONObject("project");
+    public void project_updated(@RequestBody String webHook){
+        logger.info(webHook);
+        JSONObject proj_info = (new JSONObject(webHook)).getJSONObject("project");
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(proj_info);
         handler.handleProjUpdated(jsonArray);
@@ -111,36 +117,41 @@ public class Controller {
 
     @ResponseBody
     @RequestMapping(consumes="application/json", value = "/project_deleted", method = RequestMethod.POST)
-    public void project_deleted(@RequestBody String json){
-//        logger.info(json);
-//        handler.handleProjDeleted(json);
+    public void project_deleted(@RequestBody String webHook){
+        logger.info(webHook);
+        JSONObject proj_info = (new JSONObject(webHook)).getJSONObject("project");
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(proj_info);
+        handler.handleProjDeleted(jsonArray);
     }
 
     @ResponseBody
     @RequestMapping(consumes="application/json", value = "/user_created", method = RequestMethod.POST)
-    public void user_created(@RequestBody String json){
-        logger.info(json);
-        JSONObject userInfo = (new JSONObject(json)).getJSONObject("user");
+    public void user_created(@RequestBody String webHook){
+        logger.info(webHook);
+        JSONObject userInfo = (new JSONObject(webHook)).getJSONObject("user");
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(userInfo);
-        handler.handleProjUpdated(jsonArray);
+        handler.handleUserUpdated(jsonArray);
     }
 
     @ResponseBody
     @RequestMapping(consumes="application/json", value = "/user_updated", method = RequestMethod.POST)
-    public void user_updated(@RequestBody String json){
-        logger.info(json);
-        JSONObject userInfo = (new JSONObject(json)).getJSONObject("user");
+    public void user_updated(@RequestBody String webHook){
+        logger.info(webHook);
+        JSONObject userInfo = (new JSONObject(webHook)).getJSONObject("user");
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(userInfo);
-        handler.handleProjUpdated(jsonArray);
+        handler.handleUserUpdated(jsonArray);
     }
 
     @ResponseBody
     @RequestMapping(consumes="application/json", value = "/user_deleted", method = RequestMethod.POST)
-    public void user_deleted(@RequestBody String json){
-        logger.info(json);
-//        JSONObject userInfo = (new JSONObject(json)).getJSONObject("user");
-//        handler.handleUserUpdated(userInfo);
+    public void user_deleted(@RequestBody String webHook){
+        logger.info(webHook);
+        JSONObject userInfo = (new JSONObject(webHook)).getJSONObject("user");
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(userInfo);
+        handler.handleUserDeleted(jsonArray);
     }
 }
